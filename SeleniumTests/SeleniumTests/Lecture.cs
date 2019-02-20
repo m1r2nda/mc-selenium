@@ -7,7 +7,7 @@ using OpenQA.Selenium.Support.UI;
 namespace SeleniumTests
 {
     [TestFixture]
-    public class SeleniumTests
+    public class Lecture
     {
         private IWebDriver driver;
         private WebDriverWait wait;
@@ -18,21 +18,22 @@ namespace SeleniumTests
             var options = new ChromeOptions();
             options.AddArgument("--start-maximized"); // браузер раскрывается на весь экран
             driver = new ChromeDriver(options);
-			//driver = new ChromeDriverSpecificVersion().Create();
+            //driver = new ChromeDriverSpecificVersion().Create();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5)); //явные ожидания
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5); //неявные ожидания
         }
 
         [Test]
-        public void MyFirstSeleniumTest()
+        public void LectureTest()
         {
-            driver.Navigate().GoToUrl("https://ru.wikipedia.org/");
-            IWebElement queryInput = driver.FindElement(By.Name("search"));
-            IWebElement searchButton = driver.FindElement(By.Name("go"));
-            queryInput.SendKeys("Selenium");
-            searchButton.Click();
-
-            Assert.That(driver.Title.Contains("Selenium — Википедия"), "Перешли на неверную страницу");
+            //Selenium получает уникальный id
+            //Здесь ищем элемент по имени класса
+            driver.Navigate().GoToUrl("https://www.labirint.ru");
+            var element = driver.FindElement(By.ClassName("b-header-b-menu-e-text"));
+            element.Click();
+            //попробуем что-нибудь сделать после обновления страницы и получаем ошибку
+            driver.Navigate().Refresh();
+            element.Click();
         }
 
         [TearDown]
