@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChromeDriverSpecificVersion.cs" />
+    <Compile Include="FullTest.cs" />
     <Compile Include="Lecture.cs" />
     <Compile Include="SeleniumTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
