@@ -1,29 +1,14 @@
 ﻿using System;
 using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 
 namespace SeleniumTests
 {
     [TestFixture]
-    public class FullTest
+    public class FullTest: SeleniumTestBase
     {
-        private IWebDriver driver;
-        private WebDriverWait wait;
-
-        [SetUp]
-        public void SetUp()
-        {
-            var options = new ChromeOptions();
-            options.AddArgument("--start-maximized"); // браузер раскрывается на весь экран
-            driver = new ChromeDriver(options);
-            //driver = new ChromeDriverSpecificVersion().Create();
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5)); //явные ожидания
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5); //неявные ожидания
-        }
-
         [Test]
         public void MyFullTest()
         {
@@ -125,13 +110,6 @@ namespace SeleniumTests
             {
                 return false;
             }
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            driver.Quit();
-            driver = null;
         }
     }
 }
