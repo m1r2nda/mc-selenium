@@ -20,5 +20,7 @@ namespace SeleniumTests.Pages
         {
             driver.FindElement(chooseCourierDelivery).Click();
         }
+
+        public CourierDeliveryLightbox CourierDeliveryLightbox => new CourierDeliveryLightbox(driver, wait);
     }
 }
