@@ -13,7 +13,7 @@ namespace SeleniumTests
         public void MyFullTest()
         {
             //Основной тест
-            driver.Navigate().GoToUrl("https://www.labirint.ru");
+            OpenPage();
 
             //Локаторы
             var booksMenu = By.CssSelector("[data-toggle='header-genres']"); // Ссылка "Книги" в шапке 
@@ -31,6 +31,84 @@ namespace SeleniumTests
             var confirm = By.CssSelector(".js-dlform-wrap [value=Готово]"); //Кнопка "Готово"
             var courierDeliveryLightbox = By.CssSelector(".js-dlform-wrap"); //Локатор лайтбокса курьерской доставки
 
+            AddBookToCart(booksMenu, allBooks, addBookInCart, issueOrder, beginOrder);
+
+            ChooseCourierDelivery(chooseCourierDelivery);
+
+            AddIncorrectCity(city);
+
+            //Проверяем, что отобразилась ошибка "Неизвестный город" (локатор: cityError)
+            Assert.IsTrue(driver.FindElement(cityError).Displayed, "Не появилась ошибка о неизвестном городе");
+
+            AddCity(city, suggestedCity);
+
+            AddAddress(street, building, flat);
+
+            SelectDate();
+
+            Confirm(confirm);
+
+            //Проверяем, что лайтбокс курерской доставки не виден (локатор: courierDeliveryLightbox)
+            Assert.IsFalse(driver.FindElement(courierDeliveryLightbox).Displayed, "Не скрылся лайтбокс курьерской доставки");
+        }
+
+        private void Confirm(By confirm)
+        {
+            //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
+            wait.Until(x => !IsLoaderVisible());
+
+            //И кликаем по кнопке "Готово" (локатор: confirm)
+            driver.FindElement(confirm).Click();
+        }
+
+        private void SelectDate()
+        {
+            //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
+            wait.Until(x => !IsLoaderVisible());
+
+            //Указываем день доставки равный сегодня + 8 дней
+            (driver as IJavaScriptExecutor).ExecuteScript($"$('.js-dlform-wrap .js-delivery-date').datepicker('setDate','{DateTime.Today.AddDays(8).ToString("dd.MM.yyyy")}')");
+        }
+
+        private void AddAddress(By street, By building, By flat)
+        {
+            //Вводим название улицы (локатор: street)
+            driver.FindElement(street).SendKeys("Ленина");
+
+            //Вводим номер дома (локатор: building)
+            driver.FindElement(building).SendKeys("1");
+
+            //Вводим номер квартиры (локатор: flat)
+            driver.FindElement(flat).SendKeys("1");
+        }
+
+        private void AddCity(By city, By suggestedCity)
+        {
+            //Очищаем поле ввода и вводим город Екатеринбург (локатор: city)
+            driver.FindElement(city).Clear();
+            driver.FindElement(city).SendKeys("Екатеринбург");
+
+            //Кликаем по появившейся подсказке (локатор: suggestedCity)
+            driver.FindElement(suggestedCity).Click();
+        }
+
+        private void AddIncorrectCity(By city)
+        {
+            //Вводим город некорректный (локатор: city)
+            driver.FindElement(city).SendKeys("saasdfsdfsdfdffds");
+
+            //Убираем фокус с поля, например, кликаем Tab
+            driver.FindElement(city).SendKeys(Keys.Tab);
+        }
+
+        private void ChooseCourierDelivery(By chooseCourierDelivery)
+        {
+            //Выбираем курьерскую доставку (локатор: chooseCourierDelivery)
+            driver.FindElement(chooseCourierDelivery).Click();
+        }
+
+        private void AddBookToCart(By booksMenu, By allBooks, By addBookInCart, By issueOrder, By beginOrder)
+        {
             //Наводим на пункт "Книги" (локатор: booksMenu)
             new Actions(driver)
                 .MoveToElement(driver.FindElement(booksMenu))
@@ -54,49 +132,11 @@ namespace SeleniumTests
 
             //Кликаем по кнопке "Начать оформление" (локатор: beginOrder)
             driver.FindElement(beginOrder).Click();
+        }
 
-            //Выбираем курьерскую доставку (локатор: chooseCourierDelivery)
-            driver.FindElement(chooseCourierDelivery).Click();
-
-            //Вводим город некорректный (локатор: city)
-            driver.FindElement(city).SendKeys("saasdfsdfsdfdffds");
-
-            //Убираем фокус с поля, например, кликаем Tab
-            driver.FindElement(city).SendKeys(Keys.Tab);
-
-            //Проверяем, что отобразилась ошибка "Неизвестный город" (локатор: cityError)
-            Assert.IsTrue(driver.FindElement(cityError).Displayed, "Не появилась ошибка о неизвестном городе");
-
-            //Очищаем поле ввода и вводим город Екатеринбург (локатор: city)
-            driver.FindElement(city).Clear();
-            driver.FindElement(city).SendKeys("Екатеринбург");
-
-            //Кликаем по появившейся подсказке (локатор: suggestedCity)
-            driver.FindElement(suggestedCity).Click();
-
-            //Вводим название улицы (локатор: street)
-            driver.FindElement(street).SendKeys("Ленина");
-
-            //Вводим номер дома (локатор: building)
-            driver.FindElement(building).SendKeys("1");
-
-            //Вводим номер квартиры (локатор: flat)
-            driver.FindElement(flat).SendKeys("1");
-
-            //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
-            wait.Until(x => !IsLoaderVisible());
-
-            //Указываем день доставки равный сегодня + 8 дней
-            (driver as IJavaScriptExecutor).ExecuteScript($"$('.js-dlform-wrap .js-delivery-date').datepicker('setDate','{DateTime.Today.AddDays(8).ToString("dd.MM.yyyy")}')");
-
-            //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
-            wait.Until(x => !IsLoaderVisible());
-
-            //И кликаем по кнопке "Готово" (локатор: confirm)
-            driver.FindElement(confirm).Click();
-
-            //Проверяем, что лайтбокс курерской доставки не виден (локатор: courierDeliveryLightbox)
-            Assert.IsFalse(driver.FindElement(courierDeliveryLightbox).Displayed, "Не скрылся лайтбокс курьерской доставки");
+        private void OpenPage()
+        {
+            driver.Navigate().GoToUrl("https://www.labirint.ru");
         }
 
         private bool IsLoaderVisible()
