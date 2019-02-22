@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 
 namespace SeleniumTests
@@ -46,46 +47,84 @@ namespace SeleniumTests
             var courierDeliveryLightbox = By.CssSelector(".js-dlform-wrap"); //Локатор лайтбокса курьерской доставки
 
             //Наводим на пункт "Книги" (локатор: booksMenu)
+            new Actions(driver)
+                .MoveToElement(driver.FindElement(booksMenu))
+                .Build()
+                .Perform();
 
             //Дожидаемся показа "Все книги" (локатор: allBooks)
+            wait.Until(ExpectedConditions.ElementIsVisible(allBooks));
 
             //Кликаем по "Все книги" (локатор: allBooks)
+            driver.FindElement(allBooks).Click();
 
             //Проверяем, что перешли на url https://www.labirint.ru/books/
+            Assert.AreEqual("https://www.labirint.ru/books/", driver.Url, "Перешли на неверную страницу");
 
             //Кликаем у первой книги по кнопке "В корзину" (локатор: addBookInCart)
+            driver.FindElement(addBookInCart).Click();
 
             //Кликаем у первой книги по кнопке "Оформить" (локатор: issueOrder)
+            driver.FindElement(issueOrder).Click();
 
             //Кликаем по кнопке "Начать оформление" (локатор: beginOrder)
+            driver.FindElement(beginOrder).Click();
 
             //Выбираем курьерскую доставку (локатор: chooseCourierDelivery)
+            driver.FindElement(chooseCourierDelivery).Click();
 
             //Вводим город некорректный (локатор: city)
+            driver.FindElement(city).SendKeys("saasdfsdfsdfdffds");
 
             //Убираем фокус с поля, например, кликаем Tab
+            driver.FindElement(city).SendKeys(Keys.Tab);
 
             //Проверяем, что отобразилась ошибка "Неизвестный город" (локатор: cityError)
+            Assert.IsTrue(driver.FindElement(cityError).Displayed, "Не появилась ошибка о неизвестном городе");
 
             //Очищаем поле ввода и вводим город Екатеринбург (локатор: city)
+            driver.FindElement(city).Clear();
+            driver.FindElement(city).SendKeys("Екатеринбург");
 
             //Кликаем по появившейся подсказке (локатор: suggestedCity)
+            driver.FindElement(suggestedCity).Click();
 
             //Вводим название улицы (локатор: street)
+            driver.FindElement(street).SendKeys("Ленина");
 
             //Вводим номер дома (локатор: building)
+            driver.FindElement(building).SendKeys("1");
 
             //Вводим номер квартиры (локатор: flat)
+            driver.FindElement(flat).SendKeys("1");
 
             //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
+            wait.Until(x => !IsLoaderVisible());
 
             //Указываем день доставки равный сегодня + 8 дней
+            (driver as IJavaScriptExecutor).ExecuteScript($"$('.js-dlform-wrap .js-delivery-date').datepicker('setDate','{DateTime.Today.AddDays(8).ToString("dd.MM.yyyy")}')");
 
             //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
+            wait.Until(x => !IsLoaderVisible());
 
             //И кликаем по кнопке "Готово" (локатор: confirm)
+            driver.FindElement(confirm).Click();
 
             //Проверяем, что лайтбокс курерской доставки не виден (локатор: courierDeliveryLightbox)
+            Assert.IsFalse(driver.FindElement(courierDeliveryLightbox).Displayed, "Не скрылся лайтбокс курьерской доставки");
+        }
+
+        private bool IsLoaderVisible()
+        {
+            try
+            {
+                var loader = By.ClassName("loading-panel");
+                return driver.FindElement(loader).Displayed;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         [TearDown]
