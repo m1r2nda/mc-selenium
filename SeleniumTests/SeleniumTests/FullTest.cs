@@ -1,8 +1,5 @@
-﻿using System;
-using NUnit.Framework;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using OpenQA.Selenium.Support.UI;
+﻿using NUnit.Framework;
+using SeleniumTests.Pages;
 
 namespace SeleniumTests
 {
@@ -13,143 +10,24 @@ namespace SeleniumTests
         public void MyFullTest()
         {
             //Основной тест
-            OpenPage();
+            var homePage = new HomePage(driver, wait);
+            homePage.OpenPage();
+            homePage.AddBookToCart();
+            var basketPage = new BasketPage(driver, wait);
+            basketPage.ChooseCourierDelivery();
 
-            //Локаторы
-            var booksMenu = By.CssSelector("[data-toggle='header-genres']"); // Ссылка "Книги" в шапке 
-            var allBooks = By.CssSelector(".b-menu-second-container [href='/books/']");  //Ссылка "Все книги" в раскрывшемся меню
-            var addBookInCart = By.XPath("(//a[contains(@class,'btn')][contains(@class,'buy-link')])[1]"); //Кнопка "В корзину" или "Предзаказ" у первой книги
-            var issueOrder = By.XPath("(//a[contains(@class,'buy-link')][contains(@class,'btn-more')])[1]"); //Кнопка "Оформить" у первой книги
-            var beginOrder = By.CssSelector("#basket-default-begin-order"); //Кнопка "Начать оформление"
-            var chooseCourierDelivery = By.CssSelector("[data-gaid='cart_dlcourier']"); //Галочка для выбора курьерской доставки
-            var city = By.CssSelector("input[data-suggeststype='district']"); //Поле ввода названия города
-            var cityError = By.CssSelector("span.b-form-error"); //Локатор ошибки о неизвестном городе
-            var suggestedCity = By.CssSelector(".suggests-item-txt"); //Локатор подсказки названия города
-            var street = By.CssSelector(".js-dlform-wrap input[data-suggeststype='streets']"); //Название улицы
-            var building = By.CssSelector(".js-dlform-wrap [name^=building]"); //Номер дома
-            var flat = By.CssSelector(".js-dlform-wrap [name^=flat]"); //Номер квартиры
-            var confirm = By.CssSelector(".js-dlform-wrap [value=Готово]"); //Кнопка "Готово"
-            var courierDeliveryLightbox = By.CssSelector(".js-dlform-wrap"); //Локатор лайтбокса курьерской доставки
+            //Вводим несуществующий город
+            var lightbox = new CourierDeliveryLightbox(driver, wait);
+            lightbox.AddCity("saasdfsdfsdfdffds", fromSuggest: false);
 
-            AddBookToCart(booksMenu, allBooks, addBookInCart, issueOrder, beginOrder);
+            Assert.IsTrue(lightbox.IsInvalidCityErrorVisible(), "Не появилась ошибка о неизвестном городе");
 
-            ChooseCourierDelivery(chooseCourierDelivery);
+            lightbox.AddCity("Екатеринбург");
+            lightbox.AddAddress("Ленина", "1", "1");
+            lightbox.SelectDate();
+            lightbox.Confirm();
 
-            AddIncorrectCity(city);
-
-            //Проверяем, что отобразилась ошибка "Неизвестный город" (локатор: cityError)
-            Assert.IsTrue(driver.FindElement(cityError).Displayed, "Не появилась ошибка о неизвестном городе");
-
-            AddCity(city, suggestedCity);
-
-            AddAddress(street, building, flat);
-
-            SelectDate();
-
-            Confirm(confirm);
-
-            //Проверяем, что лайтбокс курерской доставки не виден (локатор: courierDeliveryLightbox)
-            Assert.IsFalse(driver.FindElement(courierDeliveryLightbox).Displayed, "Не скрылся лайтбокс курьерской доставки");
-        }
-
-        private void Confirm(By confirm)
-        {
-            //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
-            wait.Until(x => !IsLoaderVisible());
-
-            //И кликаем по кнопке "Готово" (локатор: confirm)
-            driver.FindElement(confirm).Click();
-        }
-
-        private void SelectDate()
-        {
-            //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
-            wait.Until(x => !IsLoaderVisible());
-
-            //Указываем день доставки равный сегодня + 8 дней
-            (driver as IJavaScriptExecutor).ExecuteScript($"$('.js-dlform-wrap .js-delivery-date').datepicker('setDate','{DateTime.Today.AddDays(8).ToString("dd.MM.yyyy")}')");
-        }
-
-        private void AddAddress(By street, By building, By flat)
-        {
-            //Вводим название улицы (локатор: street)
-            driver.FindElement(street).SendKeys("Ленина");
-
-            //Вводим номер дома (локатор: building)
-            driver.FindElement(building).SendKeys("1");
-
-            //Вводим номер квартиры (локатор: flat)
-            driver.FindElement(flat).SendKeys("1");
-        }
-
-        private void AddCity(By city, By suggestedCity)
-        {
-            //Очищаем поле ввода и вводим город Екатеринбург (локатор: city)
-            driver.FindElement(city).Clear();
-            driver.FindElement(city).SendKeys("Екатеринбург");
-
-            //Кликаем по появившейся подсказке (локатор: suggestedCity)
-            driver.FindElement(suggestedCity).Click();
-        }
-
-        private void AddIncorrectCity(By city)
-        {
-            //Вводим город некорректный (локатор: city)
-            driver.FindElement(city).SendKeys("saasdfsdfsdfdffds");
-
-            //Убираем фокус с поля, например, кликаем Tab
-            driver.FindElement(city).SendKeys(Keys.Tab);
-        }
-
-        private void ChooseCourierDelivery(By chooseCourierDelivery)
-        {
-            //Выбираем курьерскую доставку (локатор: chooseCourierDelivery)
-            driver.FindElement(chooseCourierDelivery).Click();
-        }
-
-        private void AddBookToCart(By booksMenu, By allBooks, By addBookInCart, By issueOrder, By beginOrder)
-        {
-            //Наводим на пункт "Книги" (локатор: booksMenu)
-            new Actions(driver)
-                .MoveToElement(driver.FindElement(booksMenu))
-                .Build()
-                .Perform();
-
-            //Дожидаемся показа "Все книги" (локатор: allBooks)
-            wait.Until(ExpectedConditions.ElementIsVisible(allBooks));
-
-            //Кликаем по "Все книги" (локатор: allBooks)
-            driver.FindElement(allBooks).Click();
-
-            //Проверяем, что перешли на url https://www.labirint.ru/books/
-            Assert.AreEqual("https://www.labirint.ru/books/", driver.Url, "Перешли на неверную страницу");
-
-            //Кликаем у первой книги по кнопке "В корзину" (локатор: addBookInCart)
-            driver.FindElement(addBookInCart).Click();
-
-            //Кликаем у первой книги по кнопке "Оформить" (локатор: issueOrder)
-            driver.FindElement(issueOrder).Click();
-
-            //Кликаем по кнопке "Начать оформление" (локатор: beginOrder)
-            driver.FindElement(beginOrder).Click();
-        }
-
-        private void OpenPage()
-        {
-            driver.Navigate().GoToUrl("https://www.labirint.ru");
-        }
-
-        private bool IsLoaderVisible()
-        {
-            try
-            {
-                var loader = By.ClassName("loading-panel");
-                return driver.FindElement(loader).Displayed;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            Assert.IsFalse(lightbox.IsVisible(), "Не скрылся лайтбокс");
         }
     }
 }

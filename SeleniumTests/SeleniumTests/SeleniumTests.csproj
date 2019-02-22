@@ -54,6 +54,9 @@
     <Compile Include="ChromeDriverSpecificVersion.cs" />
     <Compile Include="FullTest.cs" />
     <Compile Include="Lecture.cs" />
+    <Compile Include="Pages\BasketPage.cs" />
+    <Compile Include="Pages\CourierDeliveryLightbox.cs" />
+    <Compile Include="Pages\HomePage.cs" />
     <Compile Include="SeleniumTestBase.cs" />
     <Compile Include="SeleniumTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
