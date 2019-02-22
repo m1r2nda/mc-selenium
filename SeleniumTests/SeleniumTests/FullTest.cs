@@ -12,22 +12,21 @@ namespace SeleniumTests
             //Основной тест
             var homePage = new HomePage(driver, wait);
             homePage.OpenPage();
-            homePage.AddBookToCart();
-            var basketPage = new BasketPage(driver, wait);
+            var basketPage = homePage.AddBookToCart();
             basketPage.ChooseCourierDelivery();
 
             //Вводим несуществующий город
-            var lightbox = new CourierDeliveryLightbox(driver, wait);
-            lightbox.AddCity("saasdfsdfsdfdffds", fromSuggest: false);
+            basketPage.CourierDeliveryLightbox.AddCity("saasdfsdfsdfdffds", fromSuggest: false);
 
-            Assert.IsTrue(lightbox.IsInvalidCityErrorVisible(), "Не появилась ошибка о неизвестном городе");
+            Assert.IsTrue(basketPage.CourierDeliveryLightbox.IsInvalidCityErrorVisible, "Не появилась ошибка о неизвестном городе");
 
-            lightbox.AddCity("Екатеринбург");
-            lightbox.AddAddress("Ленина", "1", "1");
-            lightbox.SelectDate();
-            lightbox.Confirm();
+            basketPage.CourierDeliveryLightbox.AddCity("Екатеринбург");
+            // Альтернативный вариант: basketPage.CourierDeliveryLightbox.City = "Екатеринбург";
+            basketPage.CourierDeliveryLightbox.AddAddress("Ленина", "1", "1");
+            basketPage.CourierDeliveryLightbox.SelectDate();
+            basketPage.CourierDeliveryLightbox.Confirm();
 
-            Assert.IsFalse(lightbox.IsVisible(), "Не скрылся лайтбокс");
+            Assert.IsFalse(basketPage.CourierDeliveryLightbox.IsVisible, "Не скрылся лайтбокс");
         }
     }
 }

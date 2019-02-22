@@ -39,6 +39,17 @@ namespace SeleniumTests.Pages
             driver.FindElement(flat).SendKeys(flatNumber);
         }
 
+        public string City
+        {
+            get { return driver.FindElement(city).Text; }
+            set
+            {
+                driver.FindElement(city).Clear();
+                driver.FindElement(city).SendKeys(value);
+                driver.FindElement(city).SendKeys(Keys.Enter);
+            }
+        }
+
         public void SelectDate()
         {
             //Подождать, когда появившийся лоадер подсчета даты ближайшей доставки скроется
@@ -68,14 +79,7 @@ namespace SeleniumTests.Pages
             }
         }
 
-        public bool IsInvalidCityErrorVisible()
-        {
-            return driver.FindElement(cityError).Displayed;
-        }
-
-        public bool IsVisible()
-        {
-            return driver.FindElement(lightbox).Displayed;
-        }
+        public bool IsInvalidCityErrorVisible => driver.FindElement(cityError).Displayed;
+        public bool IsVisible => driver.FindElement(lightbox).Displayed;
     }
 }

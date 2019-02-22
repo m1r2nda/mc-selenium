@@ -29,7 +29,7 @@ namespace SeleniumTests.Pages
             driver.Navigate().GoToUrl(url);
         }
 
-        public void AddBookToCart()
+        public BasketPage AddBookToCart()
         {
             //Наводим на пункт меню либо через Actions либо через API http://jqueryui.com/menu/
             new Actions(driver)
@@ -48,6 +48,8 @@ namespace SeleniumTests.Pages
             driver.FindElement(addBookInCart).Click();
             driver.FindElement(issueOrder).Click();
             driver.FindElement(beginOrder).Click();
+
+            return new BasketPage(driver, wait);
         }
     }
 }
