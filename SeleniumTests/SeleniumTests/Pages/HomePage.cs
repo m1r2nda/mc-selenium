@@ -14,9 +14,10 @@ namespace SeleniumTests.Pages
         //Локаторы
         private static By booksMenu = By.CssSelector("[data-toggle='header-genres']");
         private static By allBooks = By.CssSelector(".b-menu-second-container [href='/books/']");
-        private static By addBookInCart = By.CssSelector(".product-padding a.buy-link");
+        private static By addBookInCart = By.XPath("(//a[contains(@class,'btn')][contains(@class,'buy-link')][contains(@class,'btn-primary')])[1]");
         private static By issueOrder = By.XPath("(//a[contains(@class,'btn')][contains(@class,'buy-link')][contains(@class,'btn-primary')][contains(@class,'btn-more')])[1]");
         private static By beginOrder = By.CssSelector("#basket-default-begin-order");
+        private static By cookiePolicyAgree = By.CssSelector(".js-cookie-policy-agree");
 
         public HomePage(IWebDriver driver, WebDriverWait wait)
         {
@@ -27,6 +28,8 @@ namespace SeleniumTests.Pages
         public void OpenPage()
         {
             driver.Navigate().GoToUrl(url);
+            wait.Until(ExpectedConditions.ElementExists(cookiePolicyAgree));
+            (driver as IJavaScriptExecutor).ExecuteScript($"$('.js-cookie-policy-agree').click();");
         }
 
         public BasketPage AddBookToCart()

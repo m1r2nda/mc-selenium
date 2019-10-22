@@ -9,7 +9,7 @@ namespace SeleniumTests.Pages
         private IWebDriver driver;
         private WebDriverWait wait;
 
-        private static By city = By.CssSelector("input[data-suggeststype='district']");
+        private static By city = By.CssSelector(".js-dlform-wrap input[data-suggeststype^='district']"); //Поле ввода названия города
         private static By cityError = By.CssSelector("span.b-form-error");
         private static By street = By.CssSelector(".js-dlform-wrap input[data-suggeststype='streets']");
         private static By building = By.CssSelector(".js-dlform-wrap [name^=building]");
